@@ -1,6 +1,7 @@
 'use strict';
 
 const https = require('https');
+var googleFinance = require('google-finance');
 
 const baseURL = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&interval=15min&outputsize=full&apikey=TJAVUEK5TU2C253U&dataType=json&outputsize=compact';
 
@@ -29,7 +30,22 @@ module.exports = function(app) {
 
     app.route('/api/consultar/:papel').get((req, res) => {
         let url = baseURL + '&symbol=' + req.params.papel
+        let simb = 'BVMF:' + req.params.papel
+        console.log('simbol ' + simb)
+        googleFinance.historical({
+            symbol: simb,
+            from: '2018-01-01',
+            to: '2018-01-20'
+          }, function (err, quotes) {
+              console.log('Quotes : ' + quotes)
+            res.send(quotes)
+          });
+
         console.log('URL ' + url)
+    })
+
+    app.route('').get((req, res) => {
+
         https.get(url, (resp) => {
             let data = '';
           
@@ -49,5 +65,6 @@ module.exports = function(app) {
           }).on("error", (err) => {
             console.log("Error: " + err.message);
           });
-    })   
+
+    })
 };
