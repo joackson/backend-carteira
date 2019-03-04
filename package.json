@@ -19,8 +19,12 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
+    "dateformat": "^3.0.3",
     "express": "^4.16.4",
     "google-finance": "^0.1.12",
-    "request": "^2.88.0"
+    "jsonexport": "^2.4.1",
+    "request": "^2.88.0",
+    "simple-format-number": "^0.1.2",
+    "yahoo-finance": "^0.3.6"
   }
 }
