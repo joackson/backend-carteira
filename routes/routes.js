@@ -36,12 +36,12 @@ module.exports = function(app) {
         let simb = 'BVMF:' + req.params.papel
         console.log('simbol ' + simb)
         googleFinance.historical({
-            symbol: 'PETR4.SA',
+            symbol: 'IBOV:PETR4.SA',
             from: '2019-01-01',
             to: '2019-01-20'
           }, function (err, quotes) {
               console.log('Quotes : ' + quotes)
-            res.send(quotes)
+//            res.send(quotes)
           });
 
           yahooFinance.historical({
@@ -80,13 +80,21 @@ module.exports = function(app) {
 
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'text/csv');
-                let fields = ['close', 'adjClose', 'open', 'high', 'low', 'volume']
+                res.setHeader('Content-Disposition', 'attachment; filename=cotacao-' + day + '.csv')
+                let fields = ['close', 'adjClose', 'open', 'symbol', 'date', 'volume', 'low', 'high']
                 simb.forEach(function(item) {
                     let data = []
                     let g1 = quotes[item].map(function(field) {
                         console.log(field)
                         fields.map(function(fieldName) {
-                            data.push(formatNumber(field[fieldName], {fractionDigits : 2}))
+                            if (fieldName != 'volume' && fieldName != 'date' && fieldName != 'symbol') {
+                                data.push(formatNumber(field[fieldName], {fractionDigits : 2}))
+                            }else if (fieldName == 'date') {
+                                console.log(dateFormat(field[fieldName], "yyyy-mm-dd HH:MM:ss"))
+                                data.push(dateFormat(field[fieldName], "yyyy-mm-dd HH:mm:ss"))
+                            }else {
+                                data.push(field[fieldName])
+                            }
                         })
                         return JSON.stringify(data).replace(/\[|\]|\"/g, '');
 
@@ -99,10 +107,7 @@ module.exports = function(app) {
               }
             
           });
-          
-
-        //console.log('URL ' + url)
-    })
+        })
 
     app.route('').get((req, res) => {
 
