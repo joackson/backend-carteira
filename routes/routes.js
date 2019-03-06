@@ -33,7 +33,7 @@ module.exports = function(app) {
 
     app.route('/api/consultar/:papel').get((req, res) => {
         let url = baseURL + '&symbol=' + req.params.papel
-        let simb = 'BVMF:' + req.params.papel
+        let simb = 'B3:' + req.params.papel
         console.log('simbol ' + simb)
         googleFinance.historical({
             symbol: 'IBOV:PETR4.SA',
@@ -58,7 +58,6 @@ module.exports = function(app) {
             
           });
           
-
         //console.log('URL ' + url)
     })
 
@@ -67,10 +66,11 @@ module.exports = function(app) {
         console.log('simbol ' + simb)
         var day=dateFormat(new Date(), "yyyy-mm-dd");
         console.log(day)
+        /*
           yahooFinance.historical({
             symbols: simb,
-            from: '2019-03-01',
-            to: '2019-03-01'
+            from: day,
+            to: day
           }, function (err, quotes) {
               if(err) {
                   console.log(err)
@@ -107,6 +107,37 @@ module.exports = function(app) {
               }
             
           });
+*/
+          let newFields = ['regularMarketPrice', 'regularMarketPreviousClose', 'regularMarketOpen', 'shortName', 'regularMarketTime', 'regularMarketVolume', 'regularMarketDayLow', 'regularMarketDayHigh']
+          yahooFinance.quote({
+            symbols: simb
+          }, function (err, quotes) {
+              if(err) {
+                  console.log(err)
+                  res.end()
+              }else {
+//                console.log( quotes)
+                simb.forEach(function(item) {
+                    let data = []
+                    console.log('itens de : ' + item)
+                    console.log(quotes[item].price)
+                    let price = quotes[item].price
+                    newFields.map(function(fieldName) {
+                            if (fieldName != 'regularMarketVolume' && fieldName != 'regularMarketTime' && fieldName != 'shortName') {
+                                data.push(formatNumber(price[fieldName], {fractionDigits : 2}))
+                            }else if (fieldName == 'regularMarketTime') {
+                                data.push(dateFormat(price[fieldName], "yyyy-mm-dd HH:mm:ss"))
+                            }else {
+                                data.push(price[fieldName])
+                            }
+                        })
+                    res.write(JSON.stringify(data).replace(/\[|\]|\"/g, '') + '\r\n')
+                  });
+                res.end()
+              }
+            
+          });
+
         })
 
     app.route('').get((req, res) => {
