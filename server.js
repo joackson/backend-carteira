@@ -10,6 +10,6 @@ app.use(cors())
 
 routes(app); //register the route
 
-app.listen(8000, () => {
-    console.log('Server started!');
+app.listen(process.env.PORT || 8000, () => {
+    console.log('Server started on port: ' + process.env.PORT);
 });
